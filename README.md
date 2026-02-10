@@ -15,7 +15,7 @@
 
 ## 🗺️ Roadmap
 - [x] Release data curation
-- [] Release data preprocessing
+- [x] Release data preprocessing
 - [] Release training models
 - [] Release model explainability  
 
