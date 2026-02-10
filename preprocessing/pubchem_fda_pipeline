@@ -1,0 +1,96 @@
+import os
+import time
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
+from preprocessing.data_cleaning import clean_ingredient_name
+from data_curation.pubchem_client import PubChemClient
+
+
+def run_pipeline(
+    npz_path="data/np_analysis_cleaned.npz",
+    conversion_json="data/bb/drugs_conversion.json",
+    pugview_dir="data/pugviews_json",
+    out_csv="data/expanded_cleaned_data.csv",
+    pubchem_csv="data/pubchem_compounds.csv",
+):
+    
+    # ---- Load FDA ----
+    print("Loading FDA data and cleaning drug names...")
+    npz_arr = np.load(npz_path, allow_pickle=True)["data"]
+    npz_cols = [
+        'medical_status', 'number_of_animals', 'unique_aer_id_number',
+        'veddra_term_name', 'name', 'route', 'dosage_form',
+        'atc_vet_code', 'year', 'animal_species', 'animal.gender',
+        'animal.breed.breed_component', 'animal_age',
+        'animal_weight', 'dose', 'drug_id'
+    ]
+    fda_df = pd.DataFrame(npz_arr, columns=npz_cols)
+
+    # ---- Clean drug names ----
+    fda_df = clean_ingredient_name(fda_df)
+
+    # ---- Expand drug names ----
+    expanded_drug =  (
+        fda_df
+        .assign(name=fda_df["name"].str.split("/"))
+        .explode("name")
+        .assign(name=lambda d: d["name"].str.strip())
+        .reset_index(drop=True)
+    )
+    expanded_drug["name"] = expanded_drug["name"].replace({
+        'Ivermectin': 'Ivermectin (USAN:USP:INN:BAN)'
+    })
+ 
+    print("=== Extracting drug and compounds imformation from PubChemClient ===")
+    
+    # ---- Initialize PubChem client ----
+    pubchem_client = PubChemClient(
+        conversion_json=conversion_json,
+        pugview_dir=pugview_dir
+    )
+
+    # ---- Get CIDs and map to expanded_drug ----
+    drugs = expanded_drug["name"].unique().tolist()
+    drugs.remove("")
+
+    cid_map = pubchem_client.build_drug_to_cid_map(drugs)
+    expanded_drug["CID"] = expanded_drug["name"].map(cid_map)
+
+    # ----  Download PUG-View JSON for all found CIDs -----
+    valid_cids = [c for c in cid_map.values() if c is not None]
+
+    for cid in tqdm(set(valid_cids), desc="Downloading PubChem PUGVIEW"):
+        out_path = os.path.join(pubchem_client.pugview_dir, f"{cid}.json")
+        if not os.path.exists(out_path):
+            pubchem_client.fetch_pubchem_pugview(cid)
+            time.sleep(0.25)
+
+
+    # ---- Parse all PubChem JSON → DataFrame -----
+    print("Building and saving PubChem dataframe...")
+    print()
+    pubchem_df = pubchem_client.parse_all_pugviews()
+    pubchem_df.to_csv(pubchem_csv, index=False)
+    print(f"Saved pubchem information to: {pubchem_csv}")
+
+    print("pubchem_df shape:", pubchem_df.shape)
+
+    # ---- Harmonize drug names with PubChem Titles -----
+    merged_df = expanded_drug.merge(
+        pubchem_df[["CID", "Title"]],
+        on="CID",
+        how="left"
+    )
+    merged_df["name"] = merged_df["Title"].fillna(merged_df["name"])
+    merged_df = merged_df.drop(columns=["Title"])
+    expanded_drug['name'] = merged_df['name']
+
+    # ---- Save final dataset -----
+    expanded_drug.to_csv(out_csv, index=False)
+    print(f"Saved final dataset to: {out_csv}")
+
+
+if __name__ == "__main__":
+    run_pipeline()
