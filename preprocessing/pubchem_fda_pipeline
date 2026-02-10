@@ -10,7 +10,7 @@ from data_curation.pubchem_client import PubChemClient
 
 def run_pipeline(
     npz_path="data/np_analysis_cleaned.npz",
-    conversion_json="data/bb/drugs_conversion.json",
+    conversion_json="data/drugs_conversion_backup.json",
     pugview_dir="data/pugviews_json",
     out_csv="data/expanded_cleaned_data.csv",
     pubchem_csv="data/pubchem_compounds.csv",
