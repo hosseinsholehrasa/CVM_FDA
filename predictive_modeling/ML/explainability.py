@@ -2,6 +2,7 @@
 All SHAP-based explainability utilities live here.
 """
 
+import os
 import textwrap
 from typing import Dict, Optional
 
@@ -74,6 +75,7 @@ def fda_shap_summary_plot(
             spine.set_visible(False)
 
         if save_path:
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=1200, bbox_inches="tight")
             print(f"Saved plot to {save_path}")
 
@@ -230,6 +232,7 @@ def fda_plot_top_bottom_shap(
 
         # plt.subplots_adjust(left=0.55)  # increases left margin for y-axis space
         if save_path:
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=1200, bbox_inches="tight")
             print(f"Saved plot to {save_path}")
 
