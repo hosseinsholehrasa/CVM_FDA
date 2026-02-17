@@ -18,7 +18,7 @@ def train_and_evaluate(
     x_train, y_train, 
     x_test, y_test, 
     x_val, y_val, 
-    w_test=None, w_train=None, w_val=None,
+    w_train=None, w_test=None, w_val=None,
     method="undersample", use_weights=False, random_state=42,
     model_config=xgb.XGBClassifier(tree_method="hist", device="cuda", random_state=42)
 ):
