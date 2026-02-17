@@ -35,19 +35,19 @@ def download_and_extract_files(
         os.remove(save_path + file_name + ".zip")
 
 
-def merge_jsons(json_dir: str = "../data/json_files/") -> None:
+def merge_jsons(json_dir: str = "../data/json_files/", save_path: str = "../data/all_data.json") -> None:
     """
     Merge all json files in a directory to a single json file with the key of the folder name
     :param json_dir:
     :return:
     """
     # create a json file to save the merged jsons with key all_data: []
-    with open('data/all_data.json', 'w') as f:
+    with open(save_path, 'w') as f:
         f.write('{"all_data": []}')
 
     all_data = {}
     # Open the json file to append the data
-    with open('../data/all_data.json', 'r') as merged_json:
+    with open(save_path, 'r') as merged_json:
         all_data = eval(merged_json.read())
 
     for folder_name in tqdm(sorted(os.listdir(json_dir))):
@@ -61,7 +61,7 @@ def merge_jsons(json_dir: str = "../data/json_files/") -> None:
             all_data['all_data'].append({folder_name: eval(data)})
             print(f"Data from {folder_name} added to the merged json")
 
-    with open('../data/all_data.json', 'w') as merged_json:
+    with open(save_path, 'w') as merged_json:
         # Save the merged json to the json file
         merged_json.write(str(all_data))
 
