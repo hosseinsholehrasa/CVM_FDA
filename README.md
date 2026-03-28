@@ -5,6 +5,7 @@
 <div align="center">
 <p>
 <a href="#-run-the-full-project">Run the Full Project</a> |
+<a href="https://ieeexplore.ieee.org/document/11402599">Paper</a> |
 <a href="https://arxiv.org/abs/2510.01520">ArXiv</a>
 </p>
 </div>
@@ -101,9 +102,13 @@ The main artifacts are written under the data and results folders:
 If you find this repository useful, please consider giving a ⭐ or citing our work:
 
 ```bibtex
-@article{sholehrasa2025predictive,
-  title={Predictive modeling and explainable ai for veterinary safety profiles, residue assessment, and health outcomes using real-world data and physicochemical properties},
-  author={Sholehrasa, Hossein and Xu, Xuan and Caragea, Doina and Riviere, Jim E and Jaberi-Douraki, Majid},
-  journal={arXiv preprint arXiv:2510.01520},
-  year={2025}
+@INPROCEEDINGS{sholehrasa2025predictive,
+  author={Sholehrasa, Hossein and Xu, Xuan and Caragea, Doina and Riviere, Jim E. and Jaberi-Douraki, Majid},
+  booktitle={2025 IEEE International Conference on Big Data (BigData)}, 
+  title={Predictive Modeling and Explainable AI for Veterinary Safety Profiles, Residue Assessment, and Health Outcomes Using Real-World Data and Physicochemical Properties}, 
+  year={2025},
+  pages={2043-2052},
+  doi={10.1109/BigData66926.2025.11402599}
 }
+
+
